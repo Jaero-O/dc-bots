@@ -8,7 +8,7 @@ import asyncio
 import aiohttp
 
 # ── Config ──────────────────────────────────────────────────────────────────
-TOKEN = os.environ.get("TOKEN", "MTQ5MzMxNjYyODU3MjUzNjg2Mg.GPQrpy.q2PIe5Tt7j8vpPpU-rCpOO1OHaH_eKNPbZWZuc")
+TOKEN = os.environ.get("TOKEN", "MTQ5MzMxNjYyODU3MjUzNjg2Mg.GuakL2.ZDAiR5pmjjMeMJt5UoyvmhNt2BUiZ6J81eVQFk")
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://vseqeydijcherzsleszg.supabase.co")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZXFleWRpamNoZXJ6c2xlc3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTMyMTEsImV4cCI6MjA5MTY2OTIxMX0.P4BeMAEMi-NBhuoQRnen8TN3mCA0XHoW5Ge6yq3Imr4")
 MIN_STREAK_SECONDS = 60
