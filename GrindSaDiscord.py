@@ -2,10 +2,21 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 import os
+import sys
 from datetime import datetime, date, timezone, time
 from aiohttp import web
 import asyncio
 import aiohttp
+
+# Force unbuffered output so Render shows logs immediately
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
+
+# Print env variable status immediately on startup
+print("🚀 Bot starting up...")
+print(f"   TOKEN set: {bool(os.environ.get('TOKEN'))}")
+print(f"   SUPABASE_URL set: {bool(os.environ.get('SUPABASE_URL'))}")
+print(f"   SUPABASE_KEY set: {bool(os.environ.get('SUPABASE_KEY'))}")
 
 # ── Config ──────────────────────────────────────────────────────────────────
 TOKEN = os.environ.get("TOKEN", "")
