@@ -44,7 +44,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
 
 # ── In-memory session tracker ────────────────────────────────────────────────
-active_sessions: dict[int, datetime] = {}
+active_sessions: dict[int, datetime] = {}    # user_id -> join time
+flushed_seconds: dict[int, float] = {}       # user_id -> seconds already saved this session
 
 # ── Web Server ────────────────────────────────────────────────────────────────
 
@@ -149,18 +150,22 @@ def get_live_total(uid: int, saved_seconds: float) -> float:
 
 
 async def flush_active_sessions():
-    """Save all active sessions to Supabase (called before daily post)."""
+    """Save active sessions to Supabase, tracking already-saved seconds in memory."""
     now = datetime.now(timezone.utc)
     today = date.today().isoformat()
     for uid, join_time in list(active_sessions.items()):
         elapsed = (now - join_time).total_seconds()
+        already_saved = flushed_seconds.get(uid, 0)
+        new_seconds = max(0, elapsed - already_saved)
+        if new_seconds <= 0:
+            continue
         entry = await get_or_create_user(uid)
-        last_flushed = entry.get("last_flushed_seconds") or 0
-        new_seconds = max(0, elapsed - last_flushed)
         entry["total_seconds"] = (entry.get("total_seconds") or 0) + new_seconds
-        entry["last_flushed_seconds"] = elapsed
+        entry.pop("last_flushed_seconds", None)
+        flushed_seconds[uid] = elapsed
         update_streak(entry, new_seconds, today)
         await db_upsert_user(entry)
+        print(f"💾 Flushed {format_duration(new_seconds)} for user {uid}")
 
 # ── Events ───────────────────────────────────────────────────────────────────
 
@@ -222,10 +227,10 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
             session_seconds = (now - join_time).total_seconds()
 
             entry = await get_or_create_user(uid)
-            last_flushed = entry.pop("last_flushed_seconds", 0) or 0
-            remaining = max(0, session_seconds - last_flushed)
+            already_saved = flushed_seconds.pop(uid, 0)
+            remaining = max(0, session_seconds - already_saved)
             entry["total_seconds"] = (entry.get("total_seconds") or 0) + remaining
-            entry["last_flushed_seconds"] = 0
+            entry.pop("last_flushed_seconds", None)
 
             today = date.today().isoformat()
             update_streak(entry, session_seconds, today)
