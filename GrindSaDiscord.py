@@ -153,12 +153,43 @@ async def flush_active_sessions():
 
 # ── Events ───────────────────────────────────────────────────────────────────
 
+async def check_db_connection() -> bool:
+    """Test Supabase connection on startup."""
+    print("🔌 Checking Supabase connection...")
+    print(f"   SUPABASE_URL: {SUPABASE_URL}")
+    print(f"   SUPABASE_KEY set: {bool(SUPABASE_KEY and SUPABASE_KEY != 'YOUR_SUPABASE_KEY_HERE')}")
+    try:
+        url = f"{SUPABASE_URL}/rest/v1/voice_data?limit=1"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=HEADERS) as resp:
+                if resp.status == 200:
+                    print("✅ Supabase connected successfully!")
+                    return True
+                elif resp.status == 401:
+                    print("❌ Supabase connection FAILED: Invalid API key (401 Unauthorized)")
+                    print("   → Check your SUPABASE_KEY in Render environment variables")
+                    return False
+                elif resp.status == 404:
+                    print("❌ Supabase connection FAILED: Table not found (404)")
+                    print("   → Make sure you ran the SQL to create the voice_data table")
+                    return False
+                else:
+                    text = await resp.text()
+                    print(f"❌ Supabase connection FAILED: HTTP {resp.status}")
+                    print(f"   Response: {text}")
+                    return False
+    except Exception as e:
+        print(f"❌ Supabase connection FAILED: {e}")
+        print("   → Check your SUPABASE_URL in Render environment variables")
+        return False
+
+
 @bot.event
 async def on_ready():
     await tree.sync()
+    await check_db_connection()
     daily_leaderboard.start()
     print(f"✅ Logged in as {bot.user} ({bot.user.id})")
-    print(f"🗄️  Database: Supabase")
     print(f"⏱️  Min streak time: {MIN_STREAK_SECONDS}s")
     print(f"📅 Daily leaderboard → #{AUTO_POST_CHANNEL} at midnight PHT")
 
