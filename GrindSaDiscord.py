@@ -309,21 +309,25 @@ async def build_leaderboard_lines(guild: discord.Guild, rows: list[dict] = None,
 @tree.command(name="leaderboard", description="Show the voice time leaderboard")
 @app_commands.describe(top="How many users to show (default: 10)")
 async def leaderboard(interaction: discord.Interaction, top: int = 10):
+    await interaction.response.defer()
+    await flush_active_sessions()
     lines = await build_leaderboard_lines(interaction.guild, top=top)
     if not lines:
-        await interaction.response.send_message("📭 No voice data yet!", ephemeral=True)
+        await interaction.followup.send("📭 No voice data yet!", ephemeral=True)
         return
-    await interaction.response.send_message("\n".join(lines))
+    await interaction.followup.send("\n".join(lines))
 
 
 @tree.command(name="myvoicetime", description="Check your own voice time and streak")
 async def myvoicetime(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    await flush_active_sessions()
     uid = interaction.user.id
     entry = await get_or_create_user(uid)
     live_total = get_live_total(uid, entry.get("total_seconds") or 0)
 
     if live_total == 0 and uid not in active_sessions:
-        await interaction.response.send_message("📭 No voice time yet! Join a voice channel to start.", ephemeral=True)
+        await interaction.followup.send("📭 No voice time yet! Join a voice channel to start.", ephemeral=True)
         return
 
     duration = format_duration(live_total)
@@ -338,18 +342,20 @@ async def myvoicetime(interaction: discord.Interaction):
         f"{streak_line}\n"
         f"📅 Last active: `{last_active}`"
     )
-    await interaction.response.send_message(msg, ephemeral=True)
+    await interaction.followup.send(msg, ephemeral=True)
 
 
 @tree.command(name="voicetime", description="Check another user's voice time")
 @app_commands.describe(member="The member to check")
 async def voicetime(interaction: discord.Interaction, member: discord.Member):
+    await interaction.response.defer()
+    await flush_active_sessions()
     uid = member.id
     entry = await get_or_create_user(uid)
     live_total = get_live_total(uid, entry.get("total_seconds") or 0)
 
     if live_total == 0 and uid not in active_sessions:
-        await interaction.response.send_message(f"📭 **{member.display_name}** has no voice time yet.", ephemeral=True)
+        await interaction.followup.send(f"📭 **{member.display_name}** has no voice time yet.", ephemeral=True)
         return
 
     duration = format_duration(live_total)
@@ -362,7 +368,7 @@ async def voicetime(interaction: discord.Interaction, member: discord.Member):
         f"⏱️  Total time: **{duration}**\n"
         f"{streak_line}"
     )
-    await interaction.response.send_message(msg)
+    await interaction.followup.send(msg)
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
