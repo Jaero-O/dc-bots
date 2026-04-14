@@ -9,7 +9,7 @@ import aiohttp
 
 # ── Config ──────────────────────────────────────────────────────────────────
 TOKEN = os.environ.get("TOKEN", "")
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://vseqeydijcherzsleszg.supabase.co")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 MIN_STREAK_SECONDS = 60
 AUTO_POST_CHANNEL = "leaderboard"
