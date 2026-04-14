@@ -10,7 +10,7 @@ import aiohttp
 # ── Config ──────────────────────────────────────────────────────────────────
 TOKEN = os.environ.get("TOKEN", "")
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://vseqeydijcherzsleszg.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzZXFleWRpamNoZXJ6c2xlc3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTMyMTEsImV4cCI6MjA5MTY2OTIxMX0.P4BeMAEMi-NBhuoQRnen8TN3mCA0XHoW5Ge6yq3Imr4")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 MIN_STREAK_SECONDS = 60
 AUTO_POST_CHANNEL = "leaderboard"
 AUTO_POST_TIME = time(hour=16, minute=0, tzinfo=timezone.utc)  # Midnight PHT (UTC+8)
